@@ -9,7 +9,7 @@ class VoltageSource():
         """
         #region attributes
         self.Voltage = V
-        self.Name=name
+        self.Name    = name
         #endregion
     #endregion
 #endregion

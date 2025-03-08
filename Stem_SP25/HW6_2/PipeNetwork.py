@@ -25,36 +25,26 @@ class PipeNetwork():
 
     #region methods
     def findFlowRates(self):
-        '''
-        a method to analyze the pipe network and find the flow rates in each pipe
-        given the constraints of: i) no net flow into a node and ii) no net pressure drops in the loops.
-        :return: a list of flow rates in the pipes
-        '''
-        #see how many nodes and loops there are, this is how many equation results I will return
-        N=len(self.nodes)+len(self.loops)
-        # build an initial guess for flow rates in the pipes.
-        # note that I only have 10 pipes, but need 11 variables because of the degenerate node equation at b.
-        Q0=np.full(N,10)
+        # Number of equations = # of nodes + # of loops
+        N = len(self.nodes) + len(self.loops)
+
+        # initial guess (10 L/s for each unknown, for instance)
+        Q0 = np.full(N, 10.0)
+
         def fn(q):
-            """
-            This is used as a callback for fsolve.  The mass continuity equations at the nodes and the loop equations
-            are functions of the flow rates in the pipes.  Hence, fsolve will search for the roots of these equations
-            by varying the flow rates in each pipe.
-            :param q: an array of flowrates in the pipes + 1 extra value b/c of node b
-            :return: L an array containing flow rates at the nodes and  pressure losses for the loops
-            """
-            #update the flow rate in each pipe object
+            # 1) Update each pipe’s flow from the first len(self.pipes) entries of q
             for i in range(len(self.pipes)):
-                self.pipes[i].Q= #$JES MISSING CODE$  # set volumetric flow rate from input argument q
-            #calculate the net flow rate for the node objects
-            # note:  when flow rates in pipes are correct, the net flow into each node should be zero.
-            L=  #$JES MISSING CODE$  # call the getNodeFlowRates function of this class
-            #calculate the net head loss for the loop objects
-            # note: when the flow rates in pipes are correct, the net head loss for each loop should be zero.
-            L+= #$JES MISSING CODE$  # call the getLoopHeadLosses function of this class
+                self.pipes[i].Q = q[i]  # <-- #$JES MISSING CODE$
+
+            # 2) Get the node-flow equations (net flow at each node)
+            L = self.getNodeFlowRates()  # <-- #$JES MISSING CODE$
+
+            # 3) Get the loop-head-loss equations (net head loss around each loop)
+            L += self.getLoopHeadLosses()  # <-- #$JES MISSING CODE$
             return L
-        #using fsolve to find the flow rates
-        FR=fsolve(fn,Q0)
+
+        # Use fsolve to find flows that satisfy node & loop equations
+        FR = fsolve(fn, Q0)
         return FR
 
     def getNodeFlowRates(self):

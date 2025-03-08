@@ -11,78 +11,64 @@ class ResistorNetwork():
     def __init__(self):
         """
         The resistor network consists of Loops, Resistors and Voltage Sources.
-        This is the constructor for the network and it defines fields for Loops, Resistors and Voltage Sources.
-        You can populate these lists manually or read them in from a file.
         """
         #region attributes
-        self.Loops = []  # initialize an empty list of loop objects in the network
-        self.Resistors = []  # initialize an empty a list of resistor objects in the network
-        self.VSources = []  # initialize an empty a list of source objects in the network
+        self.Loops = []      # initialize an empty list of loop objects in the network
+        self.Resistors = []  # initialize an empty list of resistor objects in the network
+        self.VSources = []   # initialize an empty list of source objects in the network
         #endregion
     #endregion
 
     #region methods
     def BuildNetworkFromFile(self, filename):
         """
-        This function reads the lines from a file and processes the file to populate the fields
-        for Loops, Resistors and Voltage Sources
-        :param filename: string for file to process
-        :return: nothing
+        Reads lines from a file and processes them to populate self.Loops, self.Resistors, self.VSources.
         """
-        FileTxt = open(filename,"r").read().split('\n')  # reads from file and then splits the string at the new line characters
-        LineNum = 0  # a counting variable to point to the line of text to be processed from FileTxt
-        # erase any previous
-        self.Resistors = []
-        self.VSources = []
-        self.Loops = []
-        LineNum = 0
-        lineTxt = ""
+        FileTxt   = open(filename,"r").read().split('\n')
         FileLength = len(FileTxt)
+        LineNum    = 0
+        self.Resistors = []
+        self.VSources  = []
+        self.Loops     = []
         while LineNum < FileLength:
             lineTxt = FileTxt[LineNum].lower().strip()
             if len(lineTxt) <1:
-                pass # skip
+                pass
             elif lineTxt[0] == '#':
-                pass  # skips comment lines
+                pass  # skip comment lines
             elif "resistor" in lineTxt:
                 LineNum = self.MakeResistor(LineNum, FileTxt)
             elif "source" in lineTxt:
                 LineNum = self.MakeVSource(LineNum, FileTxt)
             elif "loop" in lineTxt:
                 LineNum = self.MakeLoop(LineNum, FileTxt)
-            LineNum+=1
-        pass
+            LineNum += 1
 
     def MakeResistor(self, N, Txt):
         """
         Make a resistor object from reading the text file
-        :param N: (int) Line number for current processing
-        :param Txt: [string] the lines of the text file
-        :return: a resistor object
         """
-        R = #JES Missing Code  # instantiate a new resistor object
-        N += 1  # <Resistor> was detected, so move to next line in Txt
-        txt = #JES Missing Code  # retrieve line from Txt and make it lower case using Txt[N].lower()
+        # JES Missing Code:
+        R = Resistor()      # instantiate a new resistor
+        N += 1              # move past the line that said <Resistor>
+        txt = Txt[N].lower()
         while "resistor" not in txt:
             if "name" in txt:
                 R.Name = txt.split('=')[1].strip()
             if "resistance" in txt:
                 R.Resistance = float(txt.split('=')[1].strip())
-            N+=1
-            txt=Txt[N].lower()
+            N += 1
+            txt = Txt[N].lower()
 
-        self.Resistors.append(R)  # append the resistor object to the list of resistors
+        self.Resistors.append(R)
         return N
 
     def MakeVSource (self, N, Txt):
         """
         Make a voltage source object from reading the text file
-        :param N: (int) Line number for current processing
-        :param Txt: [string] the lines of the text file
-        :return: a voltage source object
         """
-        VS=VoltageSource()
-        N+=1
+        VS = VoltageSource()
+        N += 1
         txt = Txt[N].lower()
         while "source" not in txt:
             if "name" in txt:
@@ -91,8 +77,8 @@ class ResistorNetwork():
                 VS.Voltage = float(txt.split('=')[1].strip())
             if "type" in txt:
                 VS.Type = txt.split('=')[1].strip()
-            N+=1
-            txt=Txt[N].lower()
+            N += 1
+            txt = Txt[N].lower()
 
         self.VSources.append(VS)
         return N
@@ -100,71 +86,78 @@ class ResistorNetwork():
     def MakeLoop(self, N, Txt):
         """
         Make a Loop object from reading the text file
-        :param N: (int) Line number for current processing
-        :param Txt: [string] the lines of the text file
-        :return: a resistor object
         """
-        L=Loop()
-        N+=1
+        L = Loop()
+        N += 1
         txt = Txt[N].lower()
         while "loop" not in txt:
             if "name" in txt:
                 L.Name = txt.split('=')[1].strip()
             if "nodes" in txt:
-                txt=txt.replace(" ","")
+                # e.g. "nodes=a,b,c,d"
+                txt = txt.replace(" ","")
                 L.Nodes = txt.split('=')[1].strip().split(',')
-            N+=1
-            txt=Txt[N].lower()
+            N += 1
+            txt = Txt[N].lower()
 
         self.Loops.append(L)
         return N
 
     def AnalyzeCircuit(self):
         """
-        Use fsolve to find currents in the resistor network.
-        :return:
+        Use fsolve to find currents in the original resistor network (3 unknowns: I1, I2, I3).
         """
-        # need to set the currents to that Kirchoff's laws are satisfied
-        i0 = #JES MISSING CODE  #define an initial guess for the currents in the circuit
-        i = fsolve(self.GetKirchoffVals,i0)
-        # print output to the screen
-        print("I1 = {:0.1f}".format(i[0]))
-        print("I2 = {:0.1f}".format(i[1]))
-        print("I3 = {:0.1f}".format(i[2]))
+        # JES Missing Code: define an initial guess for i = [I1, I2, I3]
+        i0 = [0.1, 0.1, 0.1]   # just a simple guess
+        i  = fsolve(self.GetKirchoffVals, i0)
+
+        # Print the results
+        print("I1 = {:0.2f} A".format(i[0]))
+        print("I2 = {:0.2f} A".format(i[1]))
+        print("I3 = {:0.2f} A".format(i[2]))
         return i
 
-    def GetKirchoffVals(self,i):
+    def GetKirchoffVals(self, i):
         """
-        This function uses Kirchoff Voltage and Current laws to analyze this specific circuit
-        KVL:  The net voltage drop for a closed loop in a circuit should be zero
-        KCL:  The net current flow into a node in a circuit should be zero
-        :param i: a list of currents relevant to the circuit
-        :return: a list of loop voltage drops and node currents
+        Returns the system of KCL/KVL equations for the first (left) circuit
+        so that fsolve can drive them to zero.
         """
-        # set current in resistors in the top loop.
-        self.GetResistorByName('ad').Current=i[0]  #I_1 in diagram
-        self.GetResistorByName('bc').Current=i[0]  #I_1 in diagram
-        self.GetResistorByName('cd').Current=i[2]  #I_3 in diagram
-        #set current in resistor in bottom loop.
-        self.GetResistorByName('ce').Current=i[1]  #I_2 in diagram
-        #calculate net current into node c
-        Node_c_Current = sum([i[0],i[1],-i[2]])
+        # Set currents in the relevant resistors
+        self.GetResistorByName('ad').Current = i[0]  # I1
+        self.GetResistorByName('bc').Current = i[0]  # I1
+        self.GetResistorByName('cd').Current = i[2]  # I3
+        self.GetResistorByName('ce').Current = i[1]  # I2
 
-        KVL = self.GetLoopVoltageDrops()  # two equations here
-        KVL.append(Node_c_Current)  # one equation here
+        # KCL at node c: net current in = 0
+        #   Inflow:  I1, I2
+        #   Outflow: I3
+        Node_c_Current = i[0] + i[1] - i[2]
+
+        # Get the loop voltage drops (KVL) from each Loop object
+        #   If you have 2 loops, this returns something like [eqn_loop1, eqn_loop2].
+        KVL = self.GetLoopVoltageDrops()
+
+        # We append the node-c KCL equation to that list of loop equations
+        KVL.append(Node_c_Current)
+
         return KVL
 
     def GetElementDeltaV(self, name):
         """
-        Need to retrieve either a resistor or a voltage source by name.
-        :param name:
-        :return:
+        Retrieves the voltage drop for a resistor or voltage source by name.
+        If we find a resistor with matching name, we return -R.DeltaV() so that
+        the direction of traversal is consistent with the code in GetLoopVoltageDrops.
+        If we find a voltage source, we return either +V or -V depending on direction.
         """
+        # Resistors
         for r in self.Resistors:
             if name == r.Name:
                 return -r.DeltaV()
+            # Also check reversed name (e.g. "ab" vs "ba")
             if name[::-1] == r.Name:
                 return -r.DeltaV()
+
+        # Voltage sources
         for v in self.VSources:
             if name == v.Name:
                 return v.Voltage
@@ -173,50 +166,105 @@ class ResistorNetwork():
 
     def GetLoopVoltageDrops(self):
         """
-        This calculates the net voltage drop around a closed loop in a circuit based on the
-        current flowing through resistors (cause a drop in voltage regardless of direction of traversal) or
-        the value of the voltage source that have been set up as positive based on the direction of traversal.
-        :return: net voltage drop for all loops in the network.
+        For each Loop in self.Loops, traverse the node list in order and sum
+        voltage drops across each element. Then return a list of those net drops.
         """
-        loopVoltages=[]
+        loopVoltages = []
         for L in self.Loops:
-            # Traverse loops in order of nodes and add up voltage drops between nodes
-            loopDeltaV=0
+            loopDeltaV = 0.0
             for n in range(len(L.Nodes)):
                 if n == len(L.Nodes)-1:
+                    # last node connects back to the first
                     name = L.Nodes[0] + L.Nodes[n]
                 else:
-                    name = L.Nodes[n]+L.Nodes[n+1]
+                    # connect node n to node n+1
+                    name = L.Nodes[n] + L.Nodes[n+1]
                 loopDeltaV += self.GetElementDeltaV(name)
             loopVoltages.append(loopDeltaV)
         return loopVoltages
 
     def GetResistorByName(self, name):
         """
-        A way to retrieve a resistor object from self.Resistors based on resistor name
-        :param name:
-        :return:
+        Returns a resistor object from self.Resistors based on matching name
         """
         for r in self.Resistors:
             if r.Name == name:
                 return r
+        return None  # if not found
     #endregion
 
+# --------------------------------------------------------------------
+
 class ResistorNetwork_2(ResistorNetwork):
+    """
+    Child class that inherits from ResistorNetwork but overrides
+    AnalyzeCircuit and GetKirchoffVals to handle the second (right) circuit
+    that has an extra 5 Ohm resistor in parallel with the 32V source.
+    """
     #region constructor
     def __init__(self):
         super().__init__()  # runs the constructor of the parent class
-        #region attributes
-        #endregion
+        # any additional attributes for the second circuit can go here
     #endregion
 
     #region methods
     def AnalyzeCircuit(self):
-        #JES Missing Code
-        pass
+        """
+        Use fsolve for the second circuit, which presumably has 5 unknowns
+        (I1, I2, I3, I4, I5) if you have added a resistor in parallel with
+        the 32V source and possibly have more nodes/loops.
+        """
+        # Example initial guess for 5 unknown currents:
+        i0 = [0.1, 0.1, 0.1, 0.1, 0.1]
+        i  = fsolve(self.GetKirchoffVals, i0)
 
-    def GetKirchoffVals(self,i):
-        #JES Missing Code
-        pass
+        print("I1 = {:0.2f} A".format(i[0]))
+        print("I2 = {:0.2f} A".format(i[1]))
+        print("I3 = {:0.2f} A".format(i[2]))
+        print("I4 = {:0.2f} A".format(i[3]))
+        print("I5 = {:0.2f} A".format(i[4]))
+        return i
+
+    def GetKirchoffVals(self, i):
+        """
+        Return the system of KCL/KVL equations for the second circuit.
+        This example assumes you have 5 unknowns and that your text file
+        (ResistorNetwork_2.txt) defines new elements (including the 5 Ohm resistor,
+        named e.g. 'de') and additional loops.
+        """
+        # Example of setting currents in your known resistor names:
+        #   If you kept the same resistor names 'ad', 'bc', 'cd', 'ce'
+        #   plus a new resistor 'de' for the 5 ohm in parallel with 32V source:
+        self.GetResistorByName('ad').Current = i[0]  # I1
+        self.GetResistorByName('bc').Current = i[0]  # I1
+        self.GetResistorByName('cd').Current = i[2]  # I3
+        self.GetResistorByName('ce').Current = i[1]  # I2
+        # The new 5 ohm resistor from d to e:
+        self.GetResistorByName('de').Current = i[4]  # I5
+
+        # Now define your node-current equations (KCL) and gather loop eqns (KVL).
+        # Example: KCL at node c
+        Node_c_Current = i[0] + i[1] - i[2]
+
+        # Maybe KCL at node e:
+        # (Depends on directions of I2, I4, I5 in your actual circuit diagram.)
+        # If current i[1] flows from c->e, and i[4] flows from e->f, etc., adapt signs:
+        Node_e_Current = i[1] - i[4]  # for instance
+
+        # Then collect your loop KVL equations from self.GetLoopVoltageDrops().
+        # Suppose you defined 2 loops in the second circuit’s text file. Then:
+        KVL = self.GetLoopVoltageDrops()  # returns something like [loopEqn1, loopEqn2]
+
+        # You need 5 equations total for 5 unknowns, so add 3 KCL eqns:
+        #   (One for node c, one for node e, maybe one for node d or f.)
+        # For illustration, here’s a dummy node d eqn:
+        Node_d_Current = 0.0  # Replace with the actual sum of currents at d
+
+        # Add them to the KVL list so that fsolve sees 5 equations:
+        KVL.append(Node_c_Current)
+        KVL.append(Node_e_Current)
+        KVL.append(Node_d_Current)
+
+        return KVL
     #endregion
 #endregion

@@ -9,20 +9,22 @@ class Resistor():
         :param name: name of resistor by alphabetically ordered pair of node names
         """
         #region attributes
-        #JES Missing Code = R
-        #JES Missing Code = i
-        #JES Missing Code = self.DeltaV()
-        #JES Missing Code = name
+        # JES Missing Code:
+        self.Resistance = R
+        self.Current    = i
+        self.Name       = name
+        # Optionally compute initial voltage drop
+        self.V          = self.DeltaV()
         #endregion
     #endregion
 
     #region methods
     def DeltaV(self):
         """
-        Calculates voltage change across resistor.
+        Calculates voltage change across resistor = I * R.
         :return:  voltage drop across resistor as a float
         """
-        self.V = self.Current*self.Resistance
+        self.V = self.Current * self.Resistance
         return self.V
     #endregion
 #endregion

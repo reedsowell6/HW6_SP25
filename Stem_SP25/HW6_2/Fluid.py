@@ -8,9 +8,9 @@ class Fluid():
         :param rho: density in kg/m^3
         '''
         #region attributes
-        self.mu= # $JES MISSING CODE$  # simply make a copy of the value in the argument as a class property
-        self.rho= # $JES MISSING CODE$  # simply make a copy of the value in the argument as a class property
-        self.nu= #JES MISSING CODE$ # calculate the kinematic viscosity in units of m^2/s
+        self.mu = mu # simply make a copy of the value in the argument as a class property
+        self.rho= rho # simply make a copy of the value in the argument as a class property
+        self.nu = self.mu/self.rho # calculate the kinematic viscosity in units of m^2/s
         #endregion
     #endregion
 #endregion
